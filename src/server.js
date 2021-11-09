@@ -32,14 +32,10 @@ const corsOptions = {
 server.use(cors(corsOptions)); // Next week, deep dive to CORS!
 server.use(express.json());
 
-// Endpoints
+// Routes
 server.use("/authors", authorsRouter);
 server.use("/blogPosts", blogPostsRouter);
-// Woah, exceeding even my own expectations about what I can do by reading from inter-webs:
-// Serve static files from endpoint /authorImages:
-//server.use("/authorImages", express.static(authorImagesFolderPath));
-// Serve static files from endpoint /blogImages:
-//server.use("/blogImages", express.static(blogImagesFolderPath))
+
 
 // Error handling middleware
 server.use(badRequestHandler);
