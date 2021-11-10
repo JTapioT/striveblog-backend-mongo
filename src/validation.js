@@ -29,7 +29,7 @@ export const blogPostValidation = [
     .isString()
     .withMessage("Category is mandatory field"),
   body("title").exists().isString().withMessage("Title is mandatory field"),
-  body("cover").optional().exists().isURL().withMessage("Cover is mandatory field"),
+  body("cover").optional().isURL().withMessage("Cover is mandatory field"),
   body("email").optional().isEmail().withMessage("Email is mandatory field"),
   body("readTime")
     .exists()

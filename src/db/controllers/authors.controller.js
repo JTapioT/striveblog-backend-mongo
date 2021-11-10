@@ -61,10 +61,11 @@ export async function getAuthorById(req,res,next) {
   }
 }
 
-// TODO: Aggregate function needed here, I assume.
+// TODO: Later.
 export async function getAuthorBlogPosts(req,res,next) {
+  /*
   try {
-    // Read authors.json
+     // Read authors.json
     const authors = await getAuthorsJSON();
   
     // Find author from authors by id which is provided with request params
@@ -84,7 +85,7 @@ export async function getAuthorBlogPosts(req,res,next) {
 
   } catch(error) {
     next(error);
-  }
+  } */
 }
 
 export async function newAuthor(req,res,next) {

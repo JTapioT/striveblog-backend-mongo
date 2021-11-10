@@ -61,7 +61,6 @@ export async function getAllPosts(req,res,next) {
 export async function getPostById(req,res,next) {
   try {
     const blogPost = await BlogModel.findById(req.params.id, {
-      createdAt: 0,
       updatedAt: 0,
       __v: 0,
     });
@@ -144,6 +143,8 @@ export async function postBlogPost(req,res,next) {
     const errorsList = validationResult(req);
     if (!errorsList.isEmpty()) {
       next(createHttpError(400, { errorsList }));
+    } else {
+      res.status(400).send({errorsList})
     }
     // Create new blog post:
     const newBlogPost = new BlogModel(req.body);
