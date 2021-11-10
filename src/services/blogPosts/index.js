@@ -1,20 +1,7 @@
 import express from "express";
-import multer from "multer";
-import { blogPostValidation } from "../../validation.js";
-import { deletePostComment, getAllPosts, getPostById, getPostComments, addComment, updateBlogPost, uploadBlogPostCoverImg, deleteBlogPost, postBlogPost, downloadPDF } from "./requestHandlers.js";
-
-/* 
-import {CloudinaryStorage} from "multer-storage-cloudinary";
-import {v2 as cloudinary} from "cloudinary";
-const cloudinaryStorage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "strive-blog",
-  },
-});
-*/
-
-import { cloudinaryStorage } from "../../lib/fs-tools.js";
+import { blogPostValidation, commentValidation } from "../../validation.js";
+import { getAllPosts, getPostById, getComments,getComment, updateComment, addComment, deleteComment , updateBlogPost, updateBlogCover, deleteBlogPost, postBlogPost, downloadPDF } from "../../db/controllers/blogPosts.controller.js";
+import {uploadBlogImageToCloud} from "../../lib/image-tools.js";
 
 // Router
 const blogPostsRouter = express.Router();
@@ -25,30 +12,34 @@ blogPostsRouter
   .get(getAllPosts)
   .post(blogPostValidation, postBlogPost);
 
-// GET /blogPosts/:id
-blogPostsRouter.get("/:id", getPostById);
+// GET, PUT, DELETE /blogPosts/:id
+blogPostsRouter
+  .route("/:id")
+  .get(getPostById)
+  .put(updateBlogPost)
+  .delete(deleteBlogPost)
+
+// GET, POST /blogPosts/:id/comments
+blogPostsRouter
+  .route("/:id/comments")
+  .get(getComments)
+  .post(commentValidation, addComment)
+  
+// DELETE /blogPosts/:id/comments/:commentId
+blogPostsRouter
+  .route("/:id/comments/:commentId")
+  .get(getComment)
+  .put(updateComment)
+  .delete(deleteComment);
 
 //GET /blogPosts/:id/downloadPDF
-blogPostsRouter.get("/:id/downloadPDF", downloadPDF);
-
-// GET /blogPosts/:id/comments
-blogPostsRouter.get("/:id/comments", getPostComments)
-
-
-// POST /blogPosts/:id/comments 
-blogPostsRouter.post("/:id/comments", addComment)
+//TODO: CHECK LATER
+blogPostsRouter.route("/:id/downloadPDF")
+.get(downloadPDF);
 
 // POST /blogPosts/:id/uploadCover
-// TODO: Later.
-blogPostsRouter.post("/:id/uploadCover", multer({storage: cloudinaryStorage}).single("coverPhoto"), uploadBlogPostCoverImg);
+blogPostsRouter.route("/:id/uploadCover")
+.post(uploadBlogImageToCloud, updateBlogCover);
 
-// PUT /blogPosts/:id
-blogPostsRouter.put("/:id", updateBlogPost);
-
-// DELETE /blogPosts/:id
-blogPostsRouter.delete("/:id", deleteBlogPost);
-
-// DELETE /blogPosts/:id/comments/:commentId
-blogPostsRouter.delete("/:id/comments/:commentId", deletePostComment)
 
 export default blogPostsRouter;

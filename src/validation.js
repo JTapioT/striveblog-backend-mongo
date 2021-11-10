@@ -56,6 +56,11 @@ export const blogPostValidation = [
 ];
 
 
+export const commentValidation = [
+  body("name").exists().isString().withMessage("Name is mandatory field."),
+  body("comment").exists().isString().withMessage("Comment is mandatory field")
+]
+
 /* {	
 "_id": "SERVER GENERATED ID",
 "category": "ARTICLE CATEGORY",€

@@ -1,4 +1,4 @@
-import fs from 'fs-extra';
+/* import fs from 'fs-extra';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -10,8 +10,8 @@ export const cloudinaryStorage = new CloudinaryStorage({
     folder: "strive-blog",
   },
 });
-
-const { readJSON, writeJSON, writeFile, createReadStream } = fs; 
+ */
+/* const { readJSON, writeJSON, writeFile, createReadStream } = fs; 
 
 // Public folder path - serve static files
 //const publicFolderPath = join(process.cwd(), "./public/");
@@ -55,5 +55,5 @@ export function saveAvatarImages(filename, content) {
 export function saveCoverImages(filename, content) {
   return writeFile(join(blogImgFolderPath, filename), content);
 }
-
+ */
 

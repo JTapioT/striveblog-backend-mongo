@@ -1,38 +1,33 @@
 import express from 'express';
 import { authorPostValidation } from '../../validation.js';
 import multer from 'multer';
-import { getAuthorsCSV, getAuthors, getAuthorById, uploadAvatarImage, checkForAlreadyExistingEmail, newAuthor, editAuthor, deleteAuthor, getAuthorBlogPosts } from './requestHandlers.js';
+import { getAuthorsCSV, getAuthors, getAuthorById, updateAuthorAvatar, newAuthor, editAuthor, deleteAuthor, getAuthorBlogPosts } from '../../db/controllers/authors.controller.js';
+import {uploadAvatarImageToCloud} from '../../lib/image-tools.js';
 
 // Router
 const authorsRouter = express.Router();
 
-// Return list of all authors - GET
-authorsRouter.get("/", getAuthors);
+//GET, POST - authors/
+authorsRouter.route("/")
+  .get(getAuthors)
+  .post(authorPostValidation, newAuthor);
 
-// Return csv of all authors - GET
-authorsRouter.get("/authorsCSV", getAuthorsCSV);
+//GET - /authors/authorsCSV - Return .csv of all authors.
+authorsRouter.route("/authorsCSV")
+.get(getAuthorsCSV);
 
-// Return a single author by id - GET
-authorsRouter.get("/:id", getAuthorById);
+//GET, PUT, DELETE - /authors/:id
+authorsRouter.route("/:id")
+  .get(getAuthorById)
+  .put(editAuthor)
+  .delete(deleteAuthor);
 
-// Return blog posts by certain author - GET
+//GET - /authors/:id/blogPosts - Return blog posts by certain author
 authorsRouter.get("/:id/blogPosts", getAuthorBlogPosts);
 
-// Create a new author - POST
-authorsRouter.post("/", authorPostValidation, newAuthor)
+// Upload author avatar image - POST OR PUT?? CHANGE LATER ACCORDINGLY
+authorsRouter.post("/:id/uploadAvatar",uploadAvatarImageToCloud, updateAuthorAvatar);
 
-// Upload author avatar image - POST
-// TODO - CLOUDINARY! 
-authorsRouter.post("/:id/uploadAvatar", multer().single("avatar"), uploadAvatarImage)
-
-// Check that same e-mail does not exist already - POST
-authorsRouter.post("/checkEmail", checkForAlreadyExistingEmail)
-
-// Edit the author with the given id - PUT
-authorsRouter.put("/:id", editAuthor)
-
-// Delete the author by id - DELETE
-authorsRouter.delete("/:id", deleteAuthor)
 
 
 export default authorsRouter;

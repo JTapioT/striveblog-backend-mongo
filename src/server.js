@@ -6,18 +6,10 @@ import blogPostsRouter from './services/blogPosts/index.js';
 import { badRequestHandler, notFoundHandler, genericErrorHandler } from './errorHandlers.js';
 import mongoose from 'mongoose';
 
-//import {join} from 'path';
 
-// Public folder path - static files
-//const authorImagesFolderPath = join(process.cwd(), "./public/img/authors");
-//const blogImagesFolderPath = join(process.cwd(), "./public/img/blogPosts")
-
-
-// Invoke function express() - Object returned with many methods to use.
 const server = express();
 
-// Global middleware
-//server.use(express.static(publicFolderPath));
+
 const whitelist = [process.env.FE_LOCAL_URL, process.env.REACT_APP_FE_PROD_URL]
 const corsOptions = {
   origin: function (origin, callback) {
@@ -29,13 +21,14 @@ const corsOptions = {
     }
   },
 };
-server.use(cors(corsOptions)); // Next week, deep dive to CORS!
+
+// Global middleware
+server.use(cors(corsOptions));
 server.use(express.json());
 
 // Routes
 server.use("/authors", authorsRouter);
 server.use("/blogPosts", blogPostsRouter);
-
 
 // Error handling middleware
 server.use(badRequestHandler);

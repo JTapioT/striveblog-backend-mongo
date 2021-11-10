@@ -20,5 +20,5 @@ export const notFoundHandler = (error, req, res, next) => {
 
 export const genericErrorHandler = (error, req, res, next) => {
   console.log("Generic server error: ", error);
-  res.status(500).send({ message: "Generic Server Error - This is the time when developer needs to maybe take a good look in the mirror and consider some other job." });
+  res.status(500).send({ message: "Generic Server Error" });
 };

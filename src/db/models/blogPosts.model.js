@@ -44,7 +44,14 @@ const blogPostSchema = new mongoose.Schema({
   content: {
     type: String,
     required: true,
-  }
+  },
+  comments: [
+    {
+      name: {type: String},
+      comment: {type: String},
+      commentDate: {type: Date}
+    }
+  ]
 }, {timestamps: true});
 
 const BlogModel = mongoose.model('blogPost', blogPostSchema);
