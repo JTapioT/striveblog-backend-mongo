@@ -18,7 +18,6 @@ export async function getAllPosts(req,res,next) {
     // Seems to work for category & title when exact match at the moment.
     console.log(query2mongo(req.query));
     const mongoQuery = query2mongo(req.query);
-
     const total = await BlogModel.countDocuments(mongoQuery.criteria);
     const results = await BlogModel.find(mongoQuery.criteria, {
       createdAt: 0,
@@ -27,9 +26,11 @@ export async function getAllPosts(req,res,next) {
     })
       .limit(mongoQuery.options.limit)
       .skip(mongoQuery.options.offset)
-      .sort(mongoQuery.options.sort);
+      .sort(mongoQuery.options.sort)
+      .populate({path: "author likes", select: "name surname"})
 
     if(results.length) {
+
       res.send({
         // If no limit within query, do not show links: null
         ...(mongoQuery.options.limit && {links: mongoQuery.links("/blogPosts", total)}),
@@ -63,9 +64,11 @@ export async function getPostById(req,res,next) {
     const blogPost = await BlogModel.findById(req.params.id, {
       updatedAt: 0,
       __v: 0,
-    });
+    })
+    .populate({ path: "author likes", select: "name surname" });
+    
     if (blogPost) {
-      res.send(blogPost);
+      res.send({...blogPost.toObject(), totalLikes: blogPost.likes.length});
     } else {
       next(
         createHttpError(404, `No blog post found with an id: ${req.params.id}`)
@@ -93,7 +96,7 @@ export async function downloadPDF(req,res,next) {
 
       // I guess with responseType - expect response in arraybuffer(?):
       const response = await axios.get(blogPost.cover, {
-        // KOKEILE ILMAN
+        
         responseType: "arraybuffer",
       })
       // Split url to parts, where "/" is found:
@@ -143,8 +146,6 @@ export async function postBlogPost(req,res,next) {
     const errorsList = validationResult(req);
     if (!errorsList.isEmpty()) {
       next(createHttpError(400, { errorsList }));
-    } else {
-      res.status(400).send({errorsList})
     }
     // Create new blog post:
     const newBlogPost = new BlogModel(req.body);
@@ -160,6 +161,44 @@ export async function postBlogPost(req,res,next) {
     next(error);
   }
 }
+
+export async function addLike(req,res,next) {
+  try {
+    const blogPost = await BlogModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      // $addToSet seems to be here the magic operator,
+      // to make sure that no duplicate likes come from authors
+      // ...why would any author like more than once?
+      // I could be wrong here with usage of $addToSet instead of $push here
+      // https://stackoverflow.com/questions/15921700/mongoose-unique-values-in-nested-array-of-objects
+      // TODO: check later information on $addToSet.
+
+      { $addToSet: { likes: req.params.authorId } },
+      { new: true }
+    );
+
+    // Should there be error implementation if trying to like twice? I guess not, just ignore the request on database level..(?)
+    if(blogPost) {
+      res.send(blogPost)
+    }
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+}
+
+export async function deleteLike(req,res,next) {
+    // CLicks unlike - DELETE REQUEST..
+    const blogPost = await BlogModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      { $pull: {likes: req.params.authorId} },
+      {new: true}
+    )
+    if(blogPost) {
+      res.send(blogPost);
+    }
+}
+
 
 export async function getComments(req,res,next) {
   try {

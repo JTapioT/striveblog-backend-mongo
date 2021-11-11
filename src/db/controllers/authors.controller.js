@@ -5,6 +5,7 @@ import json2csv from "json2csv";
 import AuthorModel from "../models/authors.model.js";
 import { Readable } from "stream";
 import { Buffer } from "buffer";
+import BlogModel from "../models/blogPosts.model.js";
 
 
 export async function getAuthors(req,res,next) {
@@ -12,7 +13,7 @@ export async function getAuthors(req,res,next) {
       const authors = await AuthorModel.find();
       const count = await AuthorModel.countDocuments();
       if (authors.length) {
-        res.send({total: count, data: authors});
+        res.send({total: count, results: authors});
       } else {
         next(createHttpError(404, "No authors to show."));
       }
@@ -33,10 +34,14 @@ export async function getAuthorsCSV(req,res,next) {
     // MANY TRIES. NO LUCK. WILL RETURN ONLY THE FIRST.
     // I THINK I NEED HERE ITERATOR FUNCTION? YIELD NEXT CHUNK ASYNCHRONOUSLY OR SOMETHING.
 
-    AuthorModel.find().cursor().on("data", function(doc) {
+
+    AuthorModel.find().cursor().on("data", async function(doc) {
       let buffer = Buffer.from(JSON.stringify(doc));
       Readable.from(buffer).pipe(transform).pipe(destination);
-    })
+      /* pipeline(buffer, transform, destination, (error) => {
+        console.log(error);
+      }) */
+    }).on("end", function() {console.log("DONE")})
   
   } catch (error) {
     console.log(error);
@@ -46,8 +51,11 @@ export async function getAuthorsCSV(req,res,next) {
 
 export async function getAuthorById(req,res,next) {
   try {
-    const author = await AuthorModel.findById(req.params.id);
-
+    const author = await AuthorModel.findById(req.params.id, {
+      createdAt: 0,
+      updatedAt: 0,
+      __v: 0,
+    });
     if (author) {
       res.send(author);
     } else {
@@ -61,31 +69,39 @@ export async function getAuthorById(req,res,next) {
   }
 }
 
-// TODO: Later.
-export async function getAuthorBlogPosts(req,res,next) {
-  /*
-  try {
-     // Read authors.json
-    const authors = await getAuthorsJSON();
-  
-    // Find author from authors by id which is provided with request params
-    const author = authors.find(
-      (author) => author.id === parseInt(req.params.id)
-    );
-  
-    // Handle non-existing author by requested id
-    if (!author) {
-      next(createHttpError(404, `No author found with an id: ${req.params.id}`));
-    } else {
-      // Filter blogPosts by author name? 
-      const blogPosts = await getBlogPostsJSON();
-      const postsByAuthor = blogPosts.filter(blogPost => blogPost.author.name === author.name);
-      res.send(postsByAuthor);
-    }
 
+export async function getAuthorBlogPosts(req,res,next) {
+  try {
+      const author = await AuthorModel.findById(req.params.id, {
+        createdAt: 0,
+        updatedAt: 0,
+        __v: 0,
+      });
+
+      if(author) {
+        // Separate query for blog posts by author id:
+        // Maybe totally unworthy idea to provide this separately.
+        const authorPosts = await BlogModel.find(
+          { author: req.params.id },
+          {
+            createdAt: 0,
+            updatedAt: 0,
+            __v: 0,
+            comments: 0,
+            likes: 0,
+            // Maybe redundant to include blog comments/likes if one wants only the author & blogs made by the author.
+          }
+        );
+        // Return information together:
+        res.send({author, blogs: authorPosts});
+      } else {
+        next(
+          createHttpError(404, `No author found with an id: ${req.params.id}`)
+        );
+      }
   } catch(error) {
     next(error);
-  } */
+  }
 }
 
 export async function newAuthor(req,res,next) {

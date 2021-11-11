@@ -43,7 +43,10 @@ export const blogPostValidation = [
     .exists()
     .isString()
     .withMessage("Readtime unit is mandatory field"),
-  body("author").exists().isObject().withMessage("Author is mandatory field"),
+  body("content").exists().isString().withMessage("Content is mandatory field"),
+];
+
+/*   body("author").exists().isObject().withMessage("Author is mandatory field"),
   body("author.name")
   .exists()
   .isString()
@@ -51,9 +54,7 @@ export const blogPostValidation = [
   body("author.avatar")
   .exists()
   .isURL()
-  .withMessage("Author avatar is mandatory field"),
-  body("content").exists().isString().withMessage("Content is mandatory field"),
-];
+  .withMessage("Author avatar is mandatory field"), */
 
 
 export const commentValidation = [
