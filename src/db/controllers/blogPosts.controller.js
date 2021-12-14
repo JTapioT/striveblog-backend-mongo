@@ -13,27 +13,8 @@ export async function getAllPosts(req,res,next) {
     //console.log(query2mongo(req.query));
     const mongoQuery = query2mongo(req.query);
 
-    //console.log(req.user);
-    let total;
-    let results;
-    if(req.user.role === "User") {
-      total = await BlogModel.countDocuments({author: req.user._id, ...mongoQuery.criteria});
-
-      results = await BlogModel.find(
-        { author: req.user._id, ...mongoQuery.criteria },
-        {
-          createdAt: 0,
-          updatedAt: 0,
-          __v: 0,
-        }
-      )
-        .limit(mongoQuery.options.limit)
-        .skip(mongoQuery.options.offset)
-        .sort(mongoQuery.options.sort)
-        .populate({ path: "author likes", select: "name surname" });
-    } else {
-      total = await BlogModel.countDocuments(mongoQuery.criteria);
-      results = await BlogModel.find(mongoQuery.criteria, {
+    const total = await BlogModel.countDocuments(mongoQuery.criteria);
+    const results = await BlogModel.find(mongoQuery.criteria, {
         createdAt: 0,
         updatedAt: 0,
         __v: 0,
@@ -42,8 +23,7 @@ export async function getAllPosts(req,res,next) {
         .skip(mongoQuery.options.offset)
         .sort(mongoQuery.options.sort)
         .populate({path: "author likes", select: "name surname"})
-    }
-
+  
     if(results.length) {
       res.send({
         // If no limit within query, do not show links: null

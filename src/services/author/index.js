@@ -1,5 +1,7 @@
 import express from "express";
+import createHttpError from "http-errors";
 import basicAuth from "../../auth/basic.js";
+import BlogModel from "../../db/models/blogPosts.model.js";
 
 const authorRouter = express.Router();
 authorRouter.use(basicAuth);
@@ -41,10 +43,27 @@ authorRouter
   .delete(async (req, res, next) => {
     try {
       await req.user.delete();
+      res.send("Information deleted successfully."); // ? 
+      // Should response be just status 204?
     } catch (error) {
       console.log(error);
       next(error);
     }
   });
+
+  authorRouter.route("/stories")
+  .get(async (req,res,next) => {
+    try {
+      const authorBlogPosts = await BlogModel.find({author: req.user._id});
+      if(authorBlogPosts) {
+        res.send(authorBlogPosts)
+      } else {
+        next(createHttpError(404, "No blog posts found."));
+      }
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  })
 
   export default authorRouter;
