@@ -1,9 +1,10 @@
 import express from 'express';
 import listEndpoints from 'express-list-endpoints';
 import cors from 'cors';
+import registerRouter from "./services/register/index.js";
 import authorsRouter from './services/authors/index.js';
 import blogPostsRouter from './services/blogPosts/index.js';
-import { badRequestHandler, notFoundHandler, genericErrorHandler } from './errorHandlers.js';
+import { badRequestHandler, notFoundHandler, genericErrorHandler, forbiddenHandler, unauthorizedHandler, duplicateEmailHandler } from './errorHandlers.js';
 import mongoose from 'mongoose';
 
 
@@ -27,10 +28,14 @@ server.use(cors(corsOptions));
 server.use(express.json());
 
 // Routes
+server.use("/register", registerRouter);
 server.use("/authors", authorsRouter);
 server.use("/blogPosts", blogPostsRouter);
 
 // Error handling middleware
+server.use(unauthorizedHandler);
+server.use(forbiddenHandler);
+server.use(duplicateEmailHandler);
 server.use(badRequestHandler);
 server.use(notFoundHandler);
 server.use(genericErrorHandler);
@@ -48,4 +53,3 @@ mongoose.connection.on("connected", () => {
 })
 
 
-export default server;

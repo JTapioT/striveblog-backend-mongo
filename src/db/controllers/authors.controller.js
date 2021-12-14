@@ -31,10 +31,6 @@ export async function getAuthorsCSV(req,res,next) {
     const transform = new json2csv.Transform({fields: ["name", "surname", "email"]});
     const destination = res;
 
-    // MANY TRIES. NO LUCK. WILL RETURN ONLY THE FIRST.
-    // I THINK I NEED HERE ITERATOR FUNCTION? YIELD NEXT CHUNK ASYNCHRONOUSLY OR SOMETHING.
-
-
     AuthorModel.find().cursor().on("data", async function(doc) {
       let buffer = Buffer.from(JSON.stringify(doc));
       Readable.from(buffer).pipe(transform).pipe(destination);

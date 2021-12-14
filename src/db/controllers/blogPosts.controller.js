@@ -191,7 +191,7 @@ export async function deleteLike(req,res,next) {
     // CLicks unlike - DELETE REQUEST..
     const blogPost = await BlogModel.findByIdAndUpdate(
       { _id: req.params.id },
-      { $pull: {likes: req.params.authorId} },
+      { $pull: { likes: req.params.authorId } },
       {new: true}
     )
     if(blogPost) {

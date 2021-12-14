@@ -6,7 +6,8 @@ export const authorPostValidation = [
   body("surname").exists().isString().withMessage("Surname is mandatory field"),
   body("email").exists().isEmail().withMessage("Email is mandatory"),
   body("dateOfBirth").exists().isISO8601().withMessage("Date of birth is mandatory field, YYYY-MM-DD format"),
-  body("avatar").exists().isURL().withMessage("Avatar link is mandatory")
+  body("avatar").exists().isURL().withMessage("Avatar link is mandatory"),
+  body("password").exists().isString().withMessage("Password is required for registration")
 ];
 
 /* 
