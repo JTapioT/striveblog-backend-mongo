@@ -4,6 +4,7 @@ import { getAllPosts, getPostById, getComments,getComment, updateComment, addCom
 import {uploadBlogImageToCloud} from "../../lib/image-tools.js";
 import basicAuth from "../../auth/basic.js";
 import adminAuth from "../../auth/admin.js";
+import authorAuth from "../../auth/author.js";
 
 // Router
 const blogPostsRouter = express.Router();
@@ -22,8 +23,8 @@ blogPostsRouter
 blogPostsRouter
   .route("/:id")
   .get(getPostById)
-  .put(adminAuth, updateBlogPost)
-  .delete(adminAuth, deleteBlogPost)
+  .put(authorAuth, updateBlogPost)
+  .delete(authorAuth, deleteBlogPost)
 
 // GET, POST /blogPosts/:id/comments
 blogPostsRouter
