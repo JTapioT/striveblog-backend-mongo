@@ -45,8 +45,5 @@ const blogPostSchema = new mongoose.Schema({
 }, {timestamps: true});
 
 
-// TODO:  Add if you have time!
-//blogPostSchema.static()
-
 const BlogModel = mongoose.model('blogPost', blogPostSchema);
 export default BlogModel;

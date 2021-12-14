@@ -8,20 +8,22 @@ import adminAuth from "../../auth/admin.js";
 // Router
 const blogPostsRouter = express.Router();
 
-//blogPostsRouter.use();
+blogPostsRouter.use(basicAuth);
 
 // GET /blogPosts
 blogPostsRouter
   .route("/")
-  .get(basicAuth, getAllPosts)
+  // If role is "User" - return only the blog posts of the user
+  // Else everything for "Admin"
+  .get(getAllPosts)
   .post(blogPostValidation, postBlogPost);
 
 // GET, PUT, DELETE /blogPosts/:id
 blogPostsRouter
   .route("/:id")
   .get(getPostById)
-  .put(basicAuth, adminAuth, updateBlogPost)
-  .delete(basicAuth, adminAuth, deleteBlogPost)
+  .put(adminAuth, updateBlogPost)
+  .delete(adminAuth, deleteBlogPost)
 
 // GET, POST /blogPosts/:id/comments
 blogPostsRouter

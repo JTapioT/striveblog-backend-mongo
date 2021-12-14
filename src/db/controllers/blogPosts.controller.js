@@ -8,29 +8,43 @@ import sendAuthorEmail from "../../lib/email-tools.js";
 import BlogModel from "../models/blogPosts.model.js";
 import query2mongo from "query-to-mongo";
 
-
-
-
 export async function getAllPosts(req,res,next) {
   try {
-    // Implement some query options:
-    // TODO: Read from the package documentation how to implement SQL LIKE style queries, "%something", "%something%", "something%"
-    // Seems to work for category & title when exact match at the moment.
-    console.log(query2mongo(req.query));
+    //console.log(query2mongo(req.query));
     const mongoQuery = query2mongo(req.query);
-    const total = await BlogModel.countDocuments(mongoQuery.criteria);
-    const results = await BlogModel.find(mongoQuery.criteria, {
-      createdAt: 0,
-      updatedAt: 0,
-      __v: 0,
-    })
-      .limit(mongoQuery.options.limit)
-      .skip(mongoQuery.options.offset)
-      .sort(mongoQuery.options.sort)
-      .populate({path: "author likes", select: "name surname"})
+
+    //console.log(req.user);
+    let total;
+    let results;
+    if(req.user.role === "User") {
+      total = await BlogModel.countDocuments({author: req.user._id, ...mongoQuery.criteria});
+
+      results = await BlogModel.find(
+        { author: req.user._id, ...mongoQuery.criteria },
+        {
+          createdAt: 0,
+          updatedAt: 0,
+          __v: 0,
+        }
+      )
+        .limit(mongoQuery.options.limit)
+        .skip(mongoQuery.options.offset)
+        .sort(mongoQuery.options.sort)
+        .populate({ path: "author likes", select: "name surname" });
+    } else {
+      total = await BlogModel.countDocuments(mongoQuery.criteria);
+      results = await BlogModel.find(mongoQuery.criteria, {
+        createdAt: 0,
+        updatedAt: 0,
+        __v: 0,
+      })
+        .limit(mongoQuery.options.limit)
+        .skip(mongoQuery.options.offset)
+        .sort(mongoQuery.options.sort)
+        .populate({path: "author likes", select: "name surname"})
+    }
 
     if(results.length) {
-
       res.send({
         // If no limit within query, do not show links: null
         ...(mongoQuery.options.limit && {links: mongoQuery.links("/blogPosts", total)}),
@@ -42,17 +56,6 @@ export async function getAllPosts(req,res,next) {
     } else {
       res.send({message: "No results found."});
     }
-    /* // Get all blog posts
-    // Second argument for sort - exclude(?):
-    const allPosts = await BlogModel.find({},{createdAt: 0, updatedAt: 0, __v: 0});
-    // What if I filter by something and want to count then returned results?
-    // Provide the same filters as an argument? 
-    const count = await BlogModel.countDocuments();
-    if(allPosts.length) {
-      res.send({total: count, data: allPosts});
-    } else {
-      next(createHttpError(404, "No Posts found."))
-    } */
   } catch (error) {
     console.log(error);
     next(error);
@@ -188,7 +191,7 @@ export async function addLike(req,res,next) {
 }
 
 export async function deleteLike(req,res,next) {
-    // CLicks unlike - DELETE REQUEST..
+  try {
     const blogPost = await BlogModel.findByIdAndUpdate(
       { _id: req.params.id },
       { $pull: { likes: req.params.authorId } },
@@ -197,6 +200,10 @@ export async function deleteLike(req,res,next) {
     if(blogPost) {
       res.send(blogPost);
     }
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
 }
 
 
