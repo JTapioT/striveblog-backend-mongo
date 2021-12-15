@@ -2,20 +2,19 @@ import express from "express";
 import { blogPostValidation, commentValidation } from "../../validation.js";
 import { getAllPosts, getPostById, getComments,getComment, updateComment, addComment, deleteComment , updateBlogPost, updateBlogCover, deleteBlogPost, postBlogPost, downloadPDF, addLike, deleteLike } from "../../db/controllers/blogPosts.controller.js";
 import {uploadBlogImageToCloud} from "../../lib/image-tools.js";
-import basicAuth from "../../auth/basic.js";
+//import basicAuth from "../../auth/basic.js";
+import JWTAuth from "../../auth/token.js";
 import adminAuth from "../../auth/admin.js";
 import authorAuth from "../../auth/author.js";
 
 // Router
 const blogPostsRouter = express.Router();
 
-blogPostsRouter.use(basicAuth);
+blogPostsRouter.use(JWTAuth);
 
 // GET /blogPosts
 blogPostsRouter
   .route("/")
-  // If role is "User" - return only the blog posts of the user
-  // Else everything for "Admin"
   .get(getAllPosts)
   .post(blogPostValidation, postBlogPost);
 
@@ -54,7 +53,6 @@ blogPostsRouter
   .delete(adminAuth, deleteComment);
 
 //GET /blogPosts/:id/downloadPDF
-//TODO: CHECK LATER
 blogPostsRouter.route("/:id/downloadPDF")
 .get(downloadPDF);
 

@@ -2,6 +2,7 @@ import express from 'express';
 import listEndpoints from 'express-list-endpoints';
 import cors from 'cors';
 import registerRouter from "./services/register/index.js";
+import loginRouter from './services/login/index.js';
 import authorRouter from "./services/author/index.js";
 import authorsRouter from './services/authors/index.js';
 import blogPostsRouter from './services/blogPosts/index.js';
@@ -30,6 +31,7 @@ server.use(express.json());
 
 // Routes
 server.use("/register", registerRouter);
+server.use("/login", loginRouter);
 server.use("/me", authorRouter);
 server.use("/authors", authorsRouter);
 server.use("/blogPosts", blogPostsRouter);

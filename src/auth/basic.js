@@ -1,4 +1,4 @@
-import createHttpError from "http-errors";
+/* import createHttpError from "http-errors";
 import atob from "atob";
 import AuthorModel from "../db/models/authors.model.js";
 
@@ -27,7 +27,7 @@ export default async function basicAuth(req,res,next) {
   } else {
     next(createHttpError(401, "Please, log in."));
   }
-}
+} */
 
 /**
  * Overall flow

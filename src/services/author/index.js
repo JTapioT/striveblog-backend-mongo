@@ -1,10 +1,11 @@
 import express from "express";
 import createHttpError from "http-errors";
-import basicAuth from "../../auth/basic.js";
+//import basicAuth from "../../auth/basic.js";
 import BlogModel from "../../db/models/blogPosts.model.js";
+import JWTAuth from "../../auth/token.js";
 
 const authorRouter = express.Router();
-authorRouter.use(basicAuth);
+authorRouter.use(JWTAuth);
 
 authorRouter
   .route("/")

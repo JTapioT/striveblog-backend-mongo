@@ -3,14 +3,15 @@ import { authorPostValidation } from '../../validation.js';
 import multer from 'multer';
 import { getAuthorsCSV, getAuthors, getAuthorById, updateAuthorAvatar, newAuthor, editAuthor, deleteAuthor, getAuthorBlogPosts } from '../../db/controllers/authors.controller.js';
 import {uploadAvatarImageToCloud} from '../../lib/image-tools.js';
-import basicAuth from '../../auth/basic.js';
+//import basicAuth from '../../auth/basic.js';
+import JWTAuth from '../../auth/token.js';
 import adminAuth from '../../auth/admin.js';
-import authorRouter from '../author/index.js';
+
 
 // Router
 const authorsRouter = express.Router();
 
-authorsRouter.use(basicAuth)
+authorsRouter.use(JWTAuth)
 authorsRouter.use(adminAuth)
 
 
