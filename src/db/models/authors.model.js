@@ -18,13 +18,15 @@ const authorSchema = new mongoose.Schema({
   },
   dateOfBirth: {
     type: Date,
-    required: true
   },
   avatar: {
     type: String,
   },
   password: {
-    type: String, required: true 
+    type: String, 
+  },
+  googleId: {
+    type: String
   },
   role: {
     type: String, default: "User", enum: ["User", "Admin"]

@@ -1,13 +1,22 @@
 import express from 'express';
 import listEndpoints from 'express-list-endpoints';
 import cors from 'cors';
+import passport from "passport";
+import mongoose from 'mongoose';
+import GoogleStrategy from "../src/auth/oauth.js";
 import registerRouter from "./services/register/index.js";
 import loginRouter from './services/login/index.js';
 import authorRouter from "./services/author/index.js";
 import authorsRouter from './services/authors/index.js';
 import blogPostsRouter from './services/blogPosts/index.js';
-import { badRequestHandler, notFoundHandler, genericErrorHandler, forbiddenHandler, unauthorizedHandler, duplicateEmailHandler } from './errorHandlers.js';
-import mongoose from 'mongoose';
+import { 
+  badRequestHandler, 
+  notFoundHandler, 
+  genericErrorHandler, 
+  forbiddenHandler, 
+  unauthorizedHandler, 
+  duplicateEmailHandler 
+} from './errorHandlers.js';
 
 
 const server = express();
@@ -25,9 +34,13 @@ const corsOptions = {
   },
 };
 
+// Passport configuration for Google
+passport.use("google", GoogleStrategy)
+
 // Global middleware
 server.use(cors(corsOptions));
 server.use(express.json());
+server.use(passport.initialize());
 
 // Routes
 server.use("/register", registerRouter);
@@ -46,7 +59,7 @@ server.use(genericErrorHandler);
 
 
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.connection.on("connected", () => {
